@@ -1,3 +1,4 @@
+import sys
 import os
 import glob
 import random
@@ -14,6 +15,7 @@ if os.path.exists('debug.log'):
 LOG.addHandler(logging.FileHandler('debug.log'))
 LOG.setLevel(logging.INFO)
 VARIABLES = {}
+STDIN = open(0)
 
 class QuitProgram(Exception): ...
 
@@ -25,9 +27,14 @@ else:
     def clear():
         system_call("clear", shell=True)
 
-def line_input(*args):
+def write_to_stdout(line='', end='\n'):
+    sys.stdout.write(f"{line}{end}")
+    sys.stdout.flush()
+
+def line_input(line=''):
     try:
-        return input(*args)
+        write_to_stdout(line, end=' ')
+        return STDIN.readline().strip()
     except (KeyboardInterrupt, EOFError):
         raise QuitProgram
 
@@ -138,7 +145,7 @@ def echo(text):
             del text[i+1]
     text[0] = expand_variables(text[0])
     if len(text) == 1:
-        print(text[0])
+        write_to_stdout(text[0])
     elif len(text) == 2:
         # > creates a new file
         with open(text[1].strip(), 'w') as output:
@@ -314,7 +321,7 @@ token_interpreters = {
     'ctext.exe': colour_print,
     'pause': pause,
     'echo': echo,
-    'echo.': print,
+    'echo.': write_to_stdout,
     'call': call_bat,
     'if': conditional_expr,
     'set': set_variable,
@@ -349,6 +356,7 @@ def parse_line(line, extra_line=''):
     except KeyError:
         LOG.error(f'<Unrecognized line: "{tokens}">')
     except QuitProgram:
+        STDIN.close()
         quit()
 
 def run(dir, entrypoint):

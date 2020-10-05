@@ -10,9 +10,9 @@
 This is a batch file game I wrote in 2008 when I was in high school. The original game only works on Windows XP or higher. In October 2020 I wrote a Python script to interpret the batch files so they can be played on platforms aside from Windows. This is a fun experiment to see if I can get the unaltered original game files to play on Ubuntu using Python without introducing too much complexity.
 
 # How to play
-On Ubuntu, Mac, or Windows:
-* Run `funtimes.py` using Python 3.6+
-* On Windows you can play the original game without Python using `FUNTIMES.bat` inside the funtimes directory
+* Run `funtimes.py` using Python 3.6+ on Linux, Windows, or MacOS
+* On Windows you can also play the original game without Python using `FUNTIMES.bat` inside the funtimes directory
+* The original game actually works using `wineconsole` in Ubuntu as well, except for rare math problems
 
 # How to cheat
 * Unfortunately there isn't enough money in the game to get everything without cheating.
