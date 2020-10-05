@@ -31,6 +31,27 @@ def line_input(*args):
     except (KeyboardInterrupt, EOFError):
         raise QuitProgram
 
+def find_sensitive_path(insensitive_path, dir=None):
+    """
+    Borrowed from https://stackoverflow.com/a/37708342
+    Returns a case-sensitive filepath when given a case-insensitive path
+    """
+    if dir is None:
+        dir = os.getcwd()
+    insensitive_path = insensitive_path.strip(os.path.sep)
+
+    parts = insensitive_path.split(os.path.sep)
+    next_name = parts[0]
+    for name in os.listdir(dir):
+        if next_name.lower() == name.lower():
+            improved_path = os.path.join(dir, name)
+            if len(parts) == 1:
+                return improved_path
+            else:
+                return find_sensitive_path(os.path.sep.join(parts[1:]), improved_path)
+    # os.path.exists returns False when given an empty string, so...
+    return ''
+
 def strip_quotes(line):
     try:
         if line.startswith('\"'):
@@ -96,7 +117,7 @@ def conditional_expr(line):
     else:
         if 'exist ' in line:
             _, filename, statement = line.split(' ', 2)
-            value = os.path.exists(filename)
+            value = os.path.exists(find_sensitive_path(filename))
         else:
             raise NotImplementedError("i can't handle that if statement")
     if not positive:
@@ -150,7 +171,7 @@ def call_bat(line):
     filename = tokens[0]
     LOG.info(f"\n\n=======\n{filename}\n=======")
     # put all lines of the file into memory
-    with open(filename, 'r') as f:
+    with open(find_sensitive_path(filename), 'r') as f:
         lines = [line.strip() for line in f]
 
     labels = {}
@@ -275,7 +296,7 @@ def for_loop(line):
     statement = line[4]
     if statement.startswith('do '):
         statement = statement[3:]
-    with open(filename, 'r') as input_file:
+    with open(find_sensitive_path(filename), 'r') as input_file:
         for line in input_file:
             parse_line(statement.replace('%%a', line.strip()))
 
