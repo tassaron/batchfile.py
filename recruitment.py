@@ -1,3 +1,3 @@
 import batchfile
 
-batchfile.run('recruitment', 'recruitment.bat')
+batchfile.run("recruitment", "recruitment.bat")
