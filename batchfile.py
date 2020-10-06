@@ -15,7 +15,6 @@ if os.path.exists("debug.log"):
 LOG.addHandler(logging.FileHandler("debug.log"))
 LOG.setLevel(logging.WARNING)
 VARIABLES = {}
-STDIN = open(0)
 
 
 class QuitProgram(Exception):
@@ -381,11 +380,14 @@ def parse_line(line, extra_line=""):
             return func()
     except KeyError:
         LOG.error(f'<Unrecognized line: "{tokens}">')
-    except QuitProgram:
-        STDIN.close()
-        quit()
 
 
 def run(dir, entrypoint):
+    global STDIN
+    STDIN = open(0)
     os.chdir(dir)
-    call_bat(entrypoint)
+    try:
+        call_bat(entrypoint)
+    except QuitProgram:
+        pass
+    STDIN.close()
