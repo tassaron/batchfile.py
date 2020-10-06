@@ -284,7 +284,9 @@ def expand_variables(line):
         )
     except KeyError:
         LOG.warning(f'<Unrecognized variable expansion: "{var_name}">')
-        return line
+        return expand_variables(
+            f"{line[:start]}{line[end+1:]}"
+        )
 
 
 def set_variable_using_math(line):

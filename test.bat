@@ -3,4 +3,5 @@
 set var1=50
 echo This should be 50: %var1%
 echo This should be nothing: %var2%
-set /p test=Type something: 
+set var2=100
+echo This should now be 100: %var2%
