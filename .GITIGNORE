@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 env/
+.pytest_cache/
 .vscode/
 *.log
 *.sav

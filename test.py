@@ -25,10 +25,14 @@ batchfile.write_to_stdout = lambda line, end="\n": TEST_PAGE.get_line(line, end)
 
 
 def test():
-    cmd_exe = subprocess.Popen("test.bat", stdout=subprocess.PIPE, encoding="utf-8")
+    try:
+        cmd_exe = subprocess.Popen("test.bat", stdout=subprocess.PIPE, encoding="utf-8")
+    except PermissionError:
+        print("Couldn't run CMD. Are you on Windows?")
+        return
     cmd_output, _ = cmd_exe.communicate()
     batchfile.run(".", "test.bat")
-    page = "".join(TEST_PAGE.page)
+    page = "".join(TEST_PAGE.page) 
     print("CMD.exe output:")
     print(cmd_output)
     print("batchfile.py output:")
