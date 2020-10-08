@@ -14,18 +14,11 @@ class Page:
     def complete(self):
         print("".join(self.page))
 
-
-def get_line(line="", end="\n"):
-    page.append(f"{line}{end}")
-
-
-def send_input(line=""):
-    page.complete()
-    print(line)
-    return input()
-
+    def send_input(self, line=""):
+        self.complete()
+        # newline counts as the enter key here
+        return f"{input()}\n"
 
 page = Page()
-batchfile.line_input = send_input
-batchfile.write_to_stdout = get_line
-batchfile.run("funtimes", "funtimes.bat")
+bat = batchfile.Batchfile(stdin=page.send_input, stdout=page)
+bat.run("funtimes", "funtimes.bat")
