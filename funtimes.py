@@ -1,3 +1,5 @@
 import batchfile
 
-batchfile.run("funtimes", "funtimes.bat")
+
+bat = batchfile.Batchfile()
+bat.run("funtimes", "funtimes.bat")

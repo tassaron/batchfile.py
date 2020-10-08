@@ -24,16 +24,16 @@ def auto_input(line=""):
     sleep(0.5)
     i += 1
     if len(actions) < i:
-        batchfile.line_input = stdin
-        batchfile.line_input(line)
+        bat.WAIT_FOR_STDIN = False
+        return ""
     else:
         return actions[i - 1]
 
 
 def run(actions_, *args):
     global actions
-    global stdin
+    global bat
     actions = actions_
-    stdin = batchfile.line_input
-    batchfile.line_input = auto_input
-    batchfile.run(*args)
+    bat = batchfile.Batchfile(stdin=auto_input)
+    bat.run("funtimes", "funtimes.bat")
+    

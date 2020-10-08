@@ -5,34 +5,20 @@ import batchfile
 import subprocess
 
 
-class Page:
-    def __init__(self):
-        self.page = []
-
-    def append(self, line):
-        self.page.append(line)
-
-    def get_line(self, line="", end="\n"):
-        self.append(f"{line}{end}")
-
-    def finish_page(self, line=""):
-        raise batchfile.QuitProgram
-
-
-TEST_PAGE = Page()
-batchfile.line_input = lambda line: TEST_PAGE.finish_page(line)
-batchfile.write_to_stdout = lambda line, end="\n": TEST_PAGE.get_line(line, end)
-
-
 def test():
+    # Get CMD.exe output
     try:
         cmd_exe = subprocess.Popen("test.bat", stdout=subprocess.PIPE, encoding="utf-8")
     except PermissionError:
         print("Couldn't run CMD. Are you on Windows?")
         return
     cmd_output, _ = cmd_exe.communicate()
-    batchfile.run(".", "test.bat")
-    page = "".join(TEST_PAGE.page) 
+
+    # Get Batchfile.py output
+    bat = batchfile.Batchfile(stdout=[])
+    bat.run(".", "test.bat")
+    page = "".join(bat.stdout)
+
     print("CMD.exe output:")
     print(cmd_output)
     print("batchfile.py output:")
