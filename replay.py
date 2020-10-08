@@ -36,4 +36,3 @@ def run(actions_, *args):
     actions = actions_
     bat = batchfile.Batchfile(stdin=auto_input)
     bat.run("funtimes", "funtimes.bat")
-    

@@ -83,7 +83,7 @@ class Batchfile:
         else:
             self.WAIT_FOR_STDIN = True
             self.stdin = stdin
-        
+
         self.token_interpreters = {
             "cls": clear,
             "for": self.for_loop,
