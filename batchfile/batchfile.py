@@ -85,7 +85,7 @@ class Batchfile:
             self.stdin = stdin
 
         self.token_interpreters = {
-            "cls": clear,
+            "cls": self.clear,
             "for": self.for_loop,
             "del": self.delete_file,
             "ren": self.move_file,
@@ -114,6 +114,12 @@ class Batchfile:
         if new_value == False:
             self.stdin = open(0)
         self._WAIT_FOR_STDIN = new_value
+
+    def clear(self):
+        if self.SILENCE_STDOUT:
+            self.stdout.clear()
+        else:
+            clear()
 
     def run(self, dir, entrypoint):
         os.chdir(dir)
