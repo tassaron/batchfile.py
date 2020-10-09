@@ -6,14 +6,23 @@ import logging
 from subprocess import call as system_call
 
 
-LOG = logging.getLogger(__name__)
-if os.path.exists("debug.log"):
-    try:
-        os.remove("debug.log")
-    except PermissionError:
-        pass
-LOG.addHandler(logging.FileHandler("debug.log"))
-LOG.setLevel(logging.WARNING)
+def make_debug_log():
+    if os.path.exists("debug.log"):
+        try:
+            os.remove("debug.log")
+        except PermissionError:
+            pass
+    fh = logging.FileHandler("debug.log")
+    fh.setFormatter(
+        logging.Formatter("%(relativeCreated)6d %(threadName)s %(message)s")
+    )
+    log = logging.getLogger(__name__)
+    log.addHandler(fh)
+    log.setLevel(logging.INFO)
+    return log
+
+
+LOG = make_debug_log()
 
 
 class QuitProgram(Exception):
