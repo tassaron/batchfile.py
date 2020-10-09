@@ -76,8 +76,41 @@ def nothing(*args):
     pass
 
 
+class TextFileReader:
+    def __init__(self, name):
+        self.obj = open(find_sensitive_path(name), "r")
+
+    def __enter__(self):
+        return self.obj
+
+    def __exit__(self, type, value, traceback):
+        self.obj.close()
+
+
+class TextFileRedirect:
+    def create(self, name, text):
+        with open(name, "w") as output:
+            output.write(f"{text}\n")
+
+    def append(self, name, text):
+        with open(name, "a") as output:
+            output.write(f"{text}\n")
+
+    def move(self, orig, dest):
+        os.rename(orig, dest)
+
+    def remove(self, item):
+        os.remove(item)
+
+    def read(self, name):
+        return TextFileReader(name)
+
+    def exists(self, name):
+        return os.path.exists(find_sensitive_path(name))
+
+
 class Batchfile:
-    def __init__(self, stdin=None, stdout=None):
+    def __init__(self, stdin=None, stdout=None, redirection=None):
         """
         stdin can be set to a callback which triggers when input is requested
         """
@@ -92,6 +125,11 @@ class Batchfile:
         else:
             self.WAIT_FOR_STDIN = True
             self.stdin = stdin
+
+        if redirection is None:
+            self.redirection_target = TextFileRedirect()
+        else:
+            self.redirection_target = redirection
 
         self.token_interpreters = {
             "cls": self.clear,
@@ -164,7 +202,7 @@ class Batchfile:
     def delete_file(self, line):
         files = glob.glob(line)
         for item in files:
-            os.remove(item)
+            self.redirection_target.remove(item)
 
     def move_file(self, line):
         orig, new = line.split(" ")
@@ -173,7 +211,7 @@ class Batchfile:
         for item in orig:
             if new.startswith("*"):
                 dest = f"{item}{new[1:]}"
-            os.rename(orig, dest)
+            self.redirection_target.move(orig, dest)
 
     def conditional_math(self, first, operation, second):
         first = self.expand_variables(strip_quotes(first))
@@ -218,7 +256,7 @@ class Batchfile:
         else:
             if "exist " in line:
                 _, filename, statement = line.split(" ", 2)
-                value = os.path.exists(find_sensitive_path(filename))
+                value = self.redirection_target.exists(filename)
             else:
                 raise NotImplementedError("i can't handle that if statement")
         if not positive:
@@ -242,12 +280,10 @@ class Batchfile:
             self.line_output(text[0])
         elif len(text) == 2:
             # > creates a new file
-            with open(text[1].strip(), "w") as output:
-                output.write(f"{text[0]}\n")
+            self.redirection_target.create(text[1].strip(), text[0])
         elif len(text) == 3:
             # >> appends to an existing file
-            with open(text[2], "a") as output:
-                output.write(f"{text[0]}\n")
+            self.redirection_target.append(text[2].strip(), text[0])
 
     def colour_print(self, text):
         while "{" in text:
@@ -388,7 +424,7 @@ class Batchfile:
         statement = line[4]
         if statement.startswith("do "):
             statement = statement[3:]
-        with open(find_sensitive_path(filename), "r") as input_file:
+        with self.redirection_target.read(filename) as input_file:
             for line in input_file:
                 self.parse_line(statement.replace("%%a", line.strip()))
 
