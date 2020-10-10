@@ -20,6 +20,13 @@ if /i "%choice%"=="b" goto b
 if /i "%choice%"=="stats" goto stats
 if /i "%choice%"=="save" goto save
 goto choice
+:b
+cls
+if %robquest%==1 echo You leave the store peacefully.
+if not %robquest%==1 echo You leave the store.
+echo.
+pause
+goto end
 :a
 if %nogun%==1 goto af
 cls
