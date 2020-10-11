@@ -151,6 +151,7 @@ class Batchfile:
             "set": self.set_variable,
         }
         self.VARIABLES = {}
+        self.current_bat = None
 
     @property
     def WAIT_FOR_STDIN(self):
@@ -306,6 +307,7 @@ class Batchfile:
             self.VARIABLES["argv"] = []
         filename = tokens[0]
         LOG.info(f"\n\n=======\n{filename}\n=======")
+        self.current_bat = filename
         # put all lines of the file into memory
         with open(find_sensitive_path(filename), "r") as f:
             lines = [line.strip() for line in f]
