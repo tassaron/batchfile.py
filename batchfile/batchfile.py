@@ -2,24 +2,8 @@ import sys
 import os
 import glob
 import random
-import logging
-from subprocess import call as system_call
-
-
-def make_debug_log():
-    if os.path.exists("debug.log"):
-        try:
-            os.remove("debug.log")
-        except PermissionError:
-            pass
-    fh = logging.FileHandler("debug.log")
-    fh.setFormatter(
-        logging.Formatter("%(relativeCreated)6d %(threadName)s %(message)s")
-    )
-    log = logging.getLogger(__name__)
-    log.addHandler(fh)
-    log.setLevel(logging.INFO)
-    return log
+from ._functions import *
+from .textfile import TextFileRedirect
 
 
 LOG = make_debug_log()
@@ -27,86 +11,6 @@ LOG = make_debug_log()
 
 class QuitProgram(Exception):
     ...
-
-
-if os.name == "nt":
-
-    def clear():
-        system_call("cls", shell=True)
-
-
-else:
-
-    def clear():
-        system_call("clear", shell=True)
-
-
-def find_sensitive_path(insensitive_path, dir=None):
-    """
-    Borrowed from https://stackoverflow.com/a/37708342
-    Returns a case-sensitive filepath when given a case-insensitive path
-    """
-    if dir is None:
-        dir = os.getcwd()
-    insensitive_path = insensitive_path.strip(os.path.sep)
-
-    parts = insensitive_path.split(os.path.sep)
-    next_name = parts[0]
-    for name in os.listdir(dir):
-        if next_name.lower() == name.lower():
-            improved_path = os.path.join(dir, name)
-            if len(parts) == 1:
-                return improved_path
-            else:
-                return find_sensitive_path(os.path.sep.join(parts[1:]), improved_path)
-    # os.path.exists returns False when given an empty string, so...
-    return ""
-
-
-def strip_quotes(line):
-    try:
-        if line.startswith('"'):
-            return line[1:-1]
-    except AttributeError:
-        pass
-    return line
-
-
-def nothing(*args):
-    pass
-
-
-class TextFileReader:
-    def __init__(self, name):
-        self.obj = open(find_sensitive_path(name), "r")
-
-    def __enter__(self):
-        return self.obj
-
-    def __exit__(self, type, value, traceback):
-        self.obj.close()
-
-
-class TextFileRedirect:
-    def create(self, name, text):
-        with open(name, "w") as output:
-            output.write(f"{text}\n")
-
-    def append(self, name, text):
-        with open(name, "a") as output:
-            output.write(f"{text}\n")
-
-    def move(self, orig, dest):
-        os.rename(orig, dest)
-
-    def remove(self, item):
-        os.remove(item)
-
-    def read(self, name):
-        return TextFileReader(name)
-
-    def exists(self, name):
-        return os.path.exists(find_sensitive_path(name))
 
 
 class Batchfile:
@@ -131,6 +35,7 @@ class Batchfile:
         else:
             self.redirection_target = redirection
 
+        nothing = lambda *_: None
         self.token_interpreters = {
             "cls": self.clear,
             "for": self.for_loop,
@@ -167,7 +72,7 @@ class Batchfile:
         if self.SILENCE_STDOUT:
             self.stdout.clear()
         else:
-            clear()
+            clear_console()
 
     def run(self, dir, entrypoint):
         os.chdir(dir)
