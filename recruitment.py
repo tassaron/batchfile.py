@@ -1,5 +1,6 @@
+# Currently doesn't work! But it's my next goal
 import batchfile
 
 
 bat = batchfile.Batchfile()
-bat.run("recruitment", "recruitment.bat")
+bat.run("games/recruitment", "recruitment.bat")

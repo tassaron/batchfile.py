@@ -19,7 +19,10 @@ class Page:
         # newline counts as the enter key here
         return f"{input()}\n"
 
+    def clear(self):
+        self.page.clear()
+
 
 page = Page()
 bat = batchfile.Batchfile(stdin=page.send_input, stdout=page)
-bat.run("funtimes", "funtimes.bat")
+bat.run("games/funtimes", "funtimes.bat")

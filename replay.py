@@ -35,4 +35,4 @@ def run(actions_, *args):
     global bat
     actions = actions_
     bat = batchfile.Batchfile(stdin=auto_input)
-    bat.run("funtimes", "funtimes.bat")
+    bat.run("games/funtimes", "funtimes.bat")
