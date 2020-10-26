@@ -10,7 +10,7 @@ try:
     from __main__ import __file__ as calling_file
 
     os.chdir(os.path.dirname(calling_file))
-except (ImportError, FileNotFoundError):
+except (ImportError, FileNotFoundError, NotADirectoryError):
     calling_file = None
 
 

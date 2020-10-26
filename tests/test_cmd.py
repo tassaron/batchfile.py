@@ -4,6 +4,7 @@ Run on Windows to compare outputs
 import batchfile
 import subprocess
 import sys
+import os
 
 if sys.platform == "win32":
 
@@ -11,7 +12,9 @@ if sys.platform == "win32":
         # Get CMD.exe output
         try:
             cmd_exe = subprocess.Popen(
-                "test.bat", stdout=subprocess.PIPE, encoding="utf-8"
+                f"{os.path.dirname(__file__)}\\test.bat",
+                stdout=subprocess.PIPE,
+                encoding="utf-8",
             )
         except PermissionError:
             print("Couldn't run CMD. Are you on Windows?")
@@ -20,7 +23,7 @@ if sys.platform == "win32":
 
         # Get Batchfile.py output
         bat = batchfile.Batchfile(stdout=[])
-        bat.run(".", "test.bat")
+        bat.run([f"cd {os.path.dirname(__file__)}", "call test.bat"])
         page = "".join(bat.stdout)
 
         print("CMD.exe output:")
