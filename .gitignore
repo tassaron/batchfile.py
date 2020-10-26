@@ -2,6 +2,8 @@
 *.py[cod]
 env/
 .pytest_cache/
+.cache/
 .vscode/
 *.log
 *.sav
+*.egg-info

@@ -78,8 +78,8 @@ class Batchfile:
 
     @WAIT_FOR_STDIN.setter
     def WAIT_FOR_STDIN(self, new_value):
-        """If the "stdin" callback is removed, open real stdin"""
-        if new_value == False:
+        """If the "stdin" callback is removed, try to open real stdin"""
+        if new_value == False and calling_file is not None:
             self.stdin = open(0)
         self._WAIT_FOR_STDIN = new_value
 
