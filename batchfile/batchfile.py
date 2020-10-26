@@ -10,8 +10,8 @@ try:
     from __main__ import __file__ as calling_file
 
     os.chdir(os.path.dirname(calling_file))
-except ImportError:
-    pass
+except (ImportError, FileNotFoundError):
+    calling_file = None
 
 
 LOG = make_debug_log()
@@ -25,6 +25,8 @@ class Batchfile:
     def __init__(self, stdin=None, stdout=None, redirection=None):
         """
         stdin can be set to a callback which triggers when input is requested
+        stdout is expected to be a list-like object with append() and clear()
+        redirection should be an object with the same interface as TextFileRedirect
         """
         self.SILENCE_STDOUT = False
         if stdout is not None:
@@ -76,6 +78,7 @@ class Batchfile:
 
     @WAIT_FOR_STDIN.setter
     def WAIT_FOR_STDIN(self, new_value):
+        """If the "stdin" callback is removed, open real stdin"""
         if new_value == False:
             self.stdin = open(0)
         self._WAIT_FOR_STDIN = new_value
@@ -87,21 +90,28 @@ class Batchfile:
             clear_console()
 
     def run(self, lines):
+        """
+        Execute a batch file line or list of lines
+        """
         if type(lines) is str:
             lines = [lines]
         try:
             self.execute_lines(lines)
         except QuitProgram:
             pass
-        if not self.WAIT_FOR_STDIN and "calling_file" in globals():
+        if not self.WAIT_FOR_STDIN and calling_file is not None:
             self.stdin.close()
-        # if calling_file isn't defined, that means we're imported in a REPL
+        # if calling_file isn't a string, that means we're imported in a REPL
 
     chdir = lambda self, dir: os.chdir(dir)
     echo_dir = lambda self: self.line_output(os.getcwd())
     echo_file = lambda self, filename: self.line_output(get_textfile_lines(filename))
 
     def line_output(self, line="", end="\n"):
+        """
+        If self.stdout is a list, appends to that list.
+        Otherwise writes to real stdout
+        """
         text = f"{line}{end}"
         if self.SILENCE_STDOUT:
             self.stdout.append(text)
@@ -110,6 +120,10 @@ class Batchfile:
         sys.stdout.flush()
 
     def line_input(self, line=""):
+        """
+        If self.stdin is a callback, trigger it and wait for response
+        Otherwise read input from real stdin
+        """
         line = line.replace("%", "")
         line = line.replace("^", "")
         self.line_output(line, end=" ")
@@ -161,6 +175,12 @@ class Batchfile:
             raise SyntaxError(f'invalid math operation ("{operation}") for conditional')
 
     def conditional_expr(self, line):
+        """
+        Starting point to any statement beginning with "if"
+        Receives as input: a string with the "if" removed already,
+            with an expression that can be compared using math,
+            or the keyword "exist " followed by a filename
+        """
         if line.startswith("/i"):
             # I think this is supposed to mean 'case insensitive' but whatever
             line = line[3:]
@@ -191,6 +211,12 @@ class Batchfile:
             return statement
 
     def echo(self, text):
+        """
+        Normally echo will "print to the screen", either with the real stdout
+            or by appending to self.stdout if it is set to a list
+        If text ends with >, then redirection_target.create(text) instead
+        If text ends with >>, then redirection_target.append(text) instead
+        """
         text = text.split(">")
         for i, token in enumerate(text):
             if len(text) - 1 == i:
@@ -210,6 +236,9 @@ class Batchfile:
             self.redirection_target.append(text[2].strip(), text[0])
 
     def colour_print(self, text):
+        """
+        Removes colour-tags from text and passes them through to echo
+        """
         while "{" in text:
             text = f"{text[:text.index('{')]}{text[text.index('}')+1:]}"
         text = strip_quotes(text)
@@ -223,6 +252,14 @@ class Batchfile:
             self.line_input("Press ENTER to continue . . .")
 
     def call_bat(self, line):
+        """
+        Receives as input: a string with the filename of a batch file,
+            optionally followed by its space-separated arguments (argv)
+        Output: Puts argv for the current batch file into the global argv,
+            replacing any existing argv from a previous batch file.
+            Then reads entire file into memory to locate all the labels,
+            and passes the lines and labels into execute_lines()
+        """
         tokens = line.split(" ", 1)
         if len(tokens) > 1:
             self.VARIABLES["argv"] = tokens[1].split(" ")
@@ -251,9 +288,14 @@ class Batchfile:
         self.execute_lines(lines, labels)
 
     def execute_lines(self, lines, labels=None):
+        """
+        Executes a list of lines by splitting each line on its first space character,
+        finding the matching token_interpreter for the first word and passing the rest
+        of the line to that interpreter method. If a GOTO is encountered, the label
+        should be a key in the labels dict which has the line-number as a value
+        """
         current_line = 0
         line = None
-        # execute everything that isn't a label
         while True:
             if line is None:
                 try:
@@ -282,6 +324,11 @@ class Batchfile:
                     current_line += 1
 
     def expand_variables(self, line):
+        """
+        Replaces %variable_name% with self.VARIABLES[variable_name]
+        Replaces %%1 with self.VARIABLES["argv"][1]
+        If the value doesn't exist, replaces %variable_name% with nothing
+        """
         if type(line) is not str:
             return line
         line = line.replace("%random%", str(random.randint(0, 32767)))
@@ -321,6 +368,11 @@ class Batchfile:
             return eval(line)
 
     def set_variable(self, line):
+        """
+        Without flags, sets a variable in the self.VARIABLES dict
+        With /a flag, sets the variable using math (addition, modulo, etc)
+        With /p flag, sets variable to user input using self.line_input()
+        """
         variable, value = line.split("=")
         if variable.startswith("/p"):
             variable = variable[3:]
@@ -344,6 +396,10 @@ class Batchfile:
             self.VARIABLES[variable] = self.expand_variables(value)
 
     def for_loop(self, line):
+        """
+        Skeleton interpreter for handling Funtimes load.bat specifically
+        Iterates over lines in an input file and runs the statements inside
+        """
         line = line.split(" ", 4)
         filename = line[3][1:-1]
         statement = line[4]
@@ -354,9 +410,16 @@ class Batchfile:
                 self.parse_line(statement.replace("%%a", line.strip()))
 
     def parse_line(self, line, extra_line=""):
+        """
+        Recursively parses a line until it becomes None or a goto is encountered
+        extra_line will hold the rest of the line remaining to be parsed
+        """
         if line is None:
             return
         LOG.debug(str(line))
+
+        # An if statement implicitly has an extra_line & always returns here
+        # otherwise we have to split the line up now into the main part & extra
         if not line.startswith("if "):
             lines = line.split(" & ", 1)
             if len(lines) > 1:
