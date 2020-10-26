@@ -25,4 +25,4 @@ class Page:
 
 page = Page()
 bat = batchfile.Batchfile(stdin=page.send_input, stdout=page)
-bat.run("games/funtimes", "funtimes.bat")
+bat.run(["cd games/funtimes", "call funtimes.bat"])
