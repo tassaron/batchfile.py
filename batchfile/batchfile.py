@@ -4,9 +4,11 @@ import glob
 import random
 from ._functions import *
 from .textfile import TextFileRedirect
+from __main__ import __file__ as calling_file
 
 
 LOG = make_debug_log()
+os.chdir(os.path.dirname(calling_file))
 
 
 class QuitProgram(Exception):
@@ -54,6 +56,7 @@ class Batchfile:
             "call": self.call_bat,
             "if": self.conditional_expr,
             "set": self.set_variable,
+            "cd": self.chdir,
         }
         self.VARIABLES = {}
         self.current_bat = None
@@ -74,14 +77,17 @@ class Batchfile:
         else:
             clear_console()
 
-    def run(self, dir, entrypoint):
-        os.chdir(dir)
+    def run(self, lines):
+        if type(lines) is str:
+            lines = [lines]
         try:
-            self.call_bat(entrypoint)
+            self.execute_lines(lines)
         except QuitProgram:
             pass
         if not self.WAIT_FOR_STDIN:
             self.stdin.close()
+
+    chdir = lambda self, dir: os.chdir(dir)
 
     def line_output(self, line="", end="\n"):
         text = f"{line}{end}"
@@ -232,7 +238,9 @@ class Batchfile:
                     continue
                 labels[line[1:].lower()] = current_line
             current_line += 1
+        self.execute_lines(lines, labels)
 
+    def execute_lines(self, lines, labels=None):
         current_line = 0
         line = None
         # execute everything that isn't a label
@@ -249,7 +257,7 @@ class Batchfile:
             elif line.startswith("goto"):
                 try:
                     current_line = labels[self.expand_variables(line[5:]).lower()]
-                except KeyError as e:
+                except (KeyError, TypeError) as e:
                     LOG.warning(f"<Failed to goto nonexistent label {e}>")
                     current_line += 1
                 line = None

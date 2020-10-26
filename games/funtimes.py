@@ -2,4 +2,4 @@ import batchfile
 
 
 bat = batchfile.Batchfile()
-bat.run("games/funtimes", "funtimes.bat")
+bat.run("cd funtimes & call funtimes.bat")

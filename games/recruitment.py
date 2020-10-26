@@ -3,4 +3,4 @@ import batchfile
 
 
 bat = batchfile.Batchfile()
-bat.run("games/recruitment", "recruitment.bat")
+bat.run(["cd recruitment", "call recruitment.bat"])
