@@ -13,7 +13,7 @@ def make_debug_log():
     fh.setFormatter(
         logging.Formatter("%(relativeCreated)6d %(threadName)s %(message)s")
     )
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__package__)
     log.addHandler(fh)
     log.setLevel(logging.INFO)
     return log
@@ -60,3 +60,8 @@ def strip_quotes(line):
     except AttributeError:
         pass
     return line
+
+
+def get_textfile_lines(filename):
+    with open(find_sensitive_path(filename), "r") as f:
+        return [line.strip() for line in f]

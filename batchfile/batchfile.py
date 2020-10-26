@@ -4,11 +4,17 @@ import glob
 import random
 from ._functions import *
 from .textfile import TextFileRedirect
-from __main__ import __file__ as calling_file
+
+try:
+    # change working directory to the file this was imported from
+    from __main__ import __file__ as calling_file
+
+    os.chdir(os.path.dirname(calling_file))
+except ImportError:
+    pass
 
 
 LOG = make_debug_log()
-os.chdir(os.path.dirname(calling_file))
 
 
 class QuitProgram(Exception):
@@ -57,6 +63,9 @@ class Batchfile:
             "if": self.conditional_expr,
             "set": self.set_variable,
             "cd": self.chdir,
+            "dir": self.echo_dir,
+            "ls": self.echo_dir,
+            "type": self.echo_file,
         }
         self.VARIABLES = {}
         self.current_bat = None
@@ -84,10 +93,13 @@ class Batchfile:
             self.execute_lines(lines)
         except QuitProgram:
             pass
-        if not self.WAIT_FOR_STDIN:
+        if not self.WAIT_FOR_STDIN and "calling_file" in globals():
             self.stdin.close()
+        # if calling_file isn't defined, that means we're imported in a REPL
 
     chdir = lambda self, dir: os.chdir(dir)
+    echo_dir = lambda self: self.line_output(os.getcwd())
+    echo_file = lambda self, filename: self.line_output(get_textfile_lines(filename))
 
     def line_output(self, line="", end="\n"):
         text = f"{line}{end}"
@@ -217,11 +229,9 @@ class Batchfile:
         else:
             self.VARIABLES["argv"] = []
         filename = tokens[0]
-        LOG.info(f"\n\n=======\n{filename}\n=======")
+        LOG.debug(f"\n\n=======\n{filename}\n=======")
         self.current_bat = filename
-        # put all lines of the file into memory
-        with open(find_sensitive_path(filename), "r") as f:
-            lines = [line.strip() for line in f]
+        lines = get_textfile_lines(filename)
 
         labels = {}
         current_line = 0
@@ -346,7 +356,7 @@ class Batchfile:
     def parse_line(self, line, extra_line=""):
         if line is None:
             return
-        LOG.info(str(line))
+        LOG.debug(str(line))
         if not line.startswith("if "):
             lines = line.split(" & ", 1)
             if len(lines) > 1:
