@@ -1,30 +1,29 @@
 """
 Automatically starts a new game of FUNTIMES.bat
 """
-import replay
+from batchfile.replay import Replay
 
 
-replay.run(
-    [
-        "a",
-        "a",
-        " ",
-        " ",
-        "Brianna",
-        "Tassaron",
-        " ",
-        "a",
-        " ",
-        " ",
-        " ",
-        " ",
-        " ",
-        " ",
-        "Muffin",
-        " ",
-        " ",
-        " ",
-    ],
-    "funtimes",
-    "funtimes.bat",
-)
+actions = [
+    "a",
+    "a",
+    " ",
+    " ",
+    "Brianna",
+    "Tassaron",
+    " ",
+    "a",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    "Muffin",
+    " ",
+    " ",
+    " ",
+]
+
+replay = Replay(actions)
+replay.run(["cd funtimes", "call funtimes.bat"])

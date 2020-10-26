@@ -7,32 +7,29 @@ from time import sleep
 import sys
 
 
-i = 0
+class Replay:
+    def __init__(self, actions):
+        self.bat = batchfile.Batchfile(stdin=self.auto_input)
+        self.actions = actions
+        self.i = 0
 
-
-def auto_input(line=""):
-    global i
-    try:
-        action = actions[i]
-        print(line, end="")
+    def auto_input(self, line=""):
+        try:
+            action = self.actions[self.i]
+            print(line, end="")
+            sys.stdout.flush()
+            sleep(0.5)
+        except IndexError:
+            action = "[Replay Finished] "
+        print(action, end="")
         sys.stdout.flush()
         sleep(0.5)
-    except IndexError:
-        action = "[Replay Finished] "
-    print(action, end="")
-    sys.stdout.flush()
-    sleep(0.5)
-    i += 1
-    if len(actions) < i:
-        bat.WAIT_FOR_STDIN = False
-        return ""
-    else:
-        return actions[i - 1]
+        self.i += 1
+        if len(self.actions) < self.i:
+            self.bat.WAIT_FOR_STDIN = False
+            return ""
+        else:
+            return self.actions[self.i - 1]
 
-
-def run(actions_, *args):
-    global actions
-    global bat
-    actions = actions_
-    bat = batchfile.Batchfile(stdin=auto_input)
-    bat.run("games/funtimes", "funtimes.bat")
+    def run(self, lines):
+        self.bat.run(lines)
