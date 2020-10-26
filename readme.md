@@ -1,37 +1,20 @@
-    ####### #     # #     # ####### ### #     # #######  #####  
-    #       #     # ##    #    #     #  ##   ## #       #     # 
-    #       #     # # #   #    #     #  # # # # #       #       
-    #####   #     # #  #  #    #     #  #  #  # #####    #####  
-    #       #     # #   # #    #     #  #     # #             # 
-    #       #     # #    ##    #     #  #     # #       #     # 
-    #        #####  #     #    #    ### #     # #######  #####  
-            (hope you have fun!)
+ # Batchfile.py
+A Python library to execute simple batch files (.bat) that would normally only work on Windows.
 
-This is a batch file game I wrote in 2008 when I was in high school. The original game only works on Windows XP or higher. In October 2020 I wrote a Python script to interpret the batch files so they can be played on platforms aside from Windows. This is a fun experiment to see if I can get the unaltered original game files to play on Ubuntu using Python without introducing too much complexity.
+When I was in high school I used to write text adventure games using Windows batch files. In October 2020 I wrote a Python script to interpret the batch files. This is a fun experiment to see if I can get unaltered original batch file games to play on Ubuntu using Python without introducing too much complexity.
+
+See my [bat2web](https://github.com/tassaron2/bat2web) repo for an example of how you can use this library to turn a batch file into a website. Something you've always wanted to do, surely :)
 
 # How to play
-* Run `funtimes.py` using Python 3.6+ on Linux, Windows, or MacOS
+* Go in the `/games` directory for python scripts that will launch games.
+* So far the only supported game is one I wrote when I was 16, which you can play by running `funtimes.py` using Python 3.6+ on Linux, Windows, or MacOS.
 * On Windows you can also play the original game without Python using `FUNTIMES.bat` inside the funtimes directory
 * The original game actually works using `wineconsole` in Ubuntu as well, except for rare math problems
-
-# How to cheat
-* Unfortunately there isn't enough money in the game to get everything without cheating.
-* **Start the game with $500**: use `Harry` as your first name and `Potter` as your last name
-* **Enter secret invisible debug menu**: in the bedroom, type `debug`, then `grace`, then `hopper`. The game will react as if you're making invalid selections but you will actually be inside the debug menu after these commands.
- * **Change any character stat**: in the debug menu, type `weet`, `money`, `str`, `int`, `cha`, or `dex` and press enter to choose which value to increase, then type a number and press enter.
- * **Fight unfinished enemies**: in the debug menu, type `lion` or `clone`. The lion is a drug-induced hallucination so it's a bit weird, and the clone has your character's stats.
- * **Teleport to unfinished area**: in the debug menu, type `cyard` to teleport to the construction yard. Here you can fight a worker to get the wrench for fixing the slushie machine. The wrench is a finished item you can use anywhere.
-
-# Differences from original game
-* You must press ENTER to proceed instead of any key. I might change this later.
-* Ctrl+C or Ctrl+D exits the game cleanly
-* I haven't yet implemented any colours. I might do that later.
-
-# Binaries within original game
-The `ctext.exe` file remains for compatibility in case you want to run the original game on Windows without Python. It is _not_ used by the Python version whatsoever. However the game files do check to ensure it exists, so you can't delete it. `ctext.exe` is from https://dennisbareis.com/software.htm (incredible that this website is still online!)
-
-# Removal of FUNTIMES.exe
-My goal with this project was not to alter the original batch files. But one batch file was converted to an exe file using [bat2exe from ComputerHope](https://www.computerhope.com/dutil.htm). I decided to un-convert this back into FUNTIMES.bat because antivirus programs detected it as a trojan.
+* Funtimes can also be played [in a web browser](http://bat.tassaron.com)
 
 # Running other batch files
-I definitely don't intend to support every batch file, but it would be nice if similar batch-file-games worked without introducing too much complexity. Another game I wrote in 2010 called "Recruitment" is included as an example. Ultimately it would be really cool if this Python script supported [Time Streamer](https://everything2.com/title/Time+Streamer).
+I definitely don't intend to support every batch file, but it would be nice if similar batch-file-games worked without introducing too much complexity. Another game I wrote in 2010 called "Recruitment" is included as an example, but it doesn't yet work. Ultimately it would be really cool if this library supported [Time Streamer](https://everything2.com/title/Time+Streamer).
+
+The main obstacle to most games working is the lack of support for parentheses and quotation marks. Some hacky solutions are included to deal with the simple cases in Funtimes, but eventually I have to write a tokenizer/lexer to correctly deal with these complex structures. This should greatly increase compatibility once I do that!
+
+Another obstacle is that a lot of batch files use weird .EXE or .COM files that do various tasks, but when I discover these cases I'll try to include them as standard functions. My primary goal is supporting batch file games, so I'm not worried about if something is a "pure" batch file.

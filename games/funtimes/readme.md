@@ -1,11 +1,16 @@
-####### #     # #     # ####### ### #     # #######  #####  
-#       #     # ##    #    #     #  ##   ## #       #     # 
-#       #     # # #   #    #     #  # # # # #       #       
-#####   #     # #  #  #    #     #  #  #  # #####    #####  
-#       #     # #   # #    #     #  #     # #             # 
-#       #     # #    ##    #     #  #     # #       #     # 
-#        #####  #     #    #    ### #     # #######  #####  
-		(hope you have fun!)
+This is a batch file game I wrote in 2008 when I was in high school. The original game only works on Windows XP or higher.
+
+
+# Original file (readme.txt) from 2008
+
+    ####### #     # #     # ####### ### #     # #######  #####  
+    #       #     # ##    #    #     #  ##   ## #       #     # 
+    #       #     # # #   #    #     #  # # # # #       #       
+    #####   #     # #  #  #    #     #  #  #  # #####    #####  
+    #       #     # #   # #    #     #  #     # #             # 
+    #       #     # #    ##    #     #  #     # #       #     # 
+    #        #####  #     #    #    ### #     # #######  #####  
+            (hope you have fun!)
 
 
 A simple little life sim composed of a million batch files
@@ -22,7 +27,7 @@ The game would be rated PG-13 if it went through the MPAA, for mild swearing, so
 --
 EXECUTION
 --
-Simply run "FUNTIMES.exe" to start playing the game. It will only run normally in Windows XP or higher, though it may be possible to get it running otherwise if you're dedicated enough. Running it in a zip file or whatever is not okay.
+Simply run "FUNTIMES.bat" to start playing the game. It will only run normally in Windows XP or higher, though it may be possible to get it running otherwise if you're dedicated enough. Running it in a zip file or whatever is not okay.
 
 --
 CREDITS
