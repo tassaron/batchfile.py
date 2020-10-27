@@ -1,6 +1,7 @@
 import os
 from ._functions import find_sensitive_path
 
+
 class TextFileReader:
     def __init__(self, name):
         self.obj = open(find_sensitive_path(name), "r")

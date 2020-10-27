@@ -23,6 +23,11 @@ while True:
         ch = input().strip().lower()
         if ch == "exit":
             break
-        bat.run(ch)
+        try:
+            bat.run(ch)
+        except (EOFError, KeyboardInterrupt):
+            raise
+        except Exception as e:
+            print(f'<Fatal error: "{e}">')
     except (EOFError, KeyboardInterrupt):
         break
