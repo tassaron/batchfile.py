@@ -25,5 +25,5 @@ actions = (
     " ",
 )
 
-replay = Replay(actions)
+replay = Replay(actions, sleep_duration=0.5)
 replay.run(["cd funtimes", "call funtimes.bat"])

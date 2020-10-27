@@ -1,7 +1,9 @@
 """
-Example of batchfile module usage
+Example of advanced batchfile module usage where the stdout is captured,
+and the state is initialized with a Replay() and then set to a callback
 """
-import batchfile
+from batchfile import Batchfile
+from batchfile.replay import Replay
 
 
 class Page:
@@ -10,12 +12,9 @@ class Page:
 
     def append(self, line):
         self.page.append(line)
-
-    def complete(self):
-        print("".join(self.page))
+        print(line, end="")
 
     def send_input(self, line=""):
-        self.complete()
         # newline counts as the enter key here
         return f"{input()}\n"
 
@@ -23,6 +22,22 @@ class Page:
         self.page.clear()
 
 
-page = Page()
-bat = batchfile.Batchfile(stdin=page.send_input, stdout=page)
-bat.run(["cd games/funtimes", "call funtimes.bat"])
+def main():
+    actions = (
+        "a",
+        "a",
+        " ",
+        " ",
+        "Brianna",
+    )
+    page = Page()
+    bat = Replay(
+        actions=actions,
+        sleep_duration=0.5,
+        stdin=page.send_input,
+        stdout=page,
+    )
+    bat.run(["cd games/funtimes", "call funtimes.bat"])
+
+
+main()
