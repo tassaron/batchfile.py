@@ -18,7 +18,7 @@ if len(sys.argv) > 1:
 print("\nBatchfile.py REPL")
 print("Type EXIT to quit, or use Ctrl+C")
 while True:
-    print(f"C:{os.getcwd()}> ", end="")
+    print(f"{os.getcwd()}> ", end="")
     try:
         ch = input().strip().lower()
         if ch == "exit":

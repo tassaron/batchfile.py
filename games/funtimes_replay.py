@@ -4,7 +4,7 @@ Automatically starts a new game of FUNTIMES.bat
 from batchfile.replay import Replay
 
 
-actions = [
+actions = (
     "a",
     "a",
     " ",
@@ -23,7 +23,7 @@ actions = [
     " ",
     " ",
     " ",
-]
+)
 
 replay = Replay(actions)
 replay.run(["cd funtimes", "call funtimes.bat"])
