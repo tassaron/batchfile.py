@@ -1,10 +1,13 @@
 from setuptools import setup, find_packages
 from os import path
 
-with open(
-    path.join(path.abspath(path.dirname(__file__)), "readme.md"), encoding="utf-8"
-) as f:
-    long_description = f.read()
+try:
+    with open(
+        path.join(path.abspath(path.dirname(__file__)), "readme.md"), encoding="utf-8"
+    ) as f:
+        long_description = f.read()
+except FileNotFoundError:
+    long_description = "No readme.md found"
 
 setup(
     name="batchfile.py",
