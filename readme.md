@@ -1,12 +1,10 @@
 # Batchfile.py
-A Python library to execute simple batch files (.bat) that would normally only work on Windows. After installing, you can get a REPL (live commandline) to test by running `python3 -m batchfile`
-
-When I was in high school I used to write text adventure games using Windows batch files. In October 2020 I wrote a Python script to interpret the batch files. This is a fun experiment to see if I can get unaltered original batch file games to play on Ubuntu using Python without introducing too much complexity.
+A Python library to execute simple batch files (.bat) that would normally only work on Windows. It's on [PyPI](https://pypi.org/project/batchfile.py/) so you can install with `pip install batchfile.py`. After installing, get a REPL (live commandline) to test it out by running `python3 -m batchfile`
 
 See my [bat2web](https://github.com/tassaron2/bat2web) repo for an example of how you can use this library to turn a batch file into a website. Something you've always wanted to do, surely :)
 
-# How to play
-* Install library by running `pip install .` in the same folder as the `setup.py` file.
+# How to play games
+* Install library (either from PyPI or by running `pip install .` in the same folder as the `setup.py` file.
 * Go in the `/games` directory for python scripts that will launch games.
 * So far the only supported game is one I wrote when I was 16, which you can play by running `funtimes.py` using Python 3.6+ on Linux, Windows, or MacOS.
 * On Windows you can also play the original game without Python using `FUNTIMES.bat` inside the funtimes directory
