@@ -10,7 +10,7 @@ try:
     from __main__ import __file__ as calling_file
 
     os.chdir(os.path.dirname(calling_file))
-except (ImportError, FileNotFoundError, NotADirectoryError):
+except (ImportError, FileNotFoundError, NotADirectoryError, OSError):
     calling_file = None
 
 
@@ -28,20 +28,13 @@ class Batchfile:
         stdout is expected to be a list-like object with append() and clear()
         redirection should be an object with the same interface as TextFileRedirect
         """
-        self.SILENCE_STDOUT = False
-        if stdout is not None:
-            self.SILENCE_STDOUT = True
-            self.stdout = stdout
+        self.SILENCE_STDOUT = False if stdout is None else True
+        self.stdout = stdout
 
-        self._WAIT_FOR_STDIN = False
-        if stdin is not None:
-            self._WAIT_FOR_STDIN = True
-            self.stdin = stdin
+        self._WAIT_FOR_STDIN = False if stdin is None else True
+        self.stdin = stdin
 
-        if redirection is None:
-            self.redirection_target = TextFileRedirect()
-        else:
-            self.redirection_target = redirection
+        self.redirection_target = TextFileRedirect() if redirection is None else redirection
 
         nothing = lambda *_: None
         self.token_interpreters = {

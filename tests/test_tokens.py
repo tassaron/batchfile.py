@@ -19,7 +19,7 @@ def test_set_variable():
 def test_set_p_variable():
     replay = Replay(("test string\n",), stdin=None)
     replay.run("set /p test=")
-    assert replay.bat.VARIABLES["test"] == "test string"
+    assert replay.VARIABLES["test"] == "test string"
 
 
 def test_conditional_expr(bat_with_variables):
