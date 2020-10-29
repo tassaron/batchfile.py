@@ -10,6 +10,7 @@ except FileNotFoundError:
     long_description = "No readme.md found"
 
 setup(
+    author="tassaron",
     name="batchfile.py",
     packages=find_packages(),
     version=0.5,

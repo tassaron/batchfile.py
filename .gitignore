@@ -1,6 +1,8 @@
 *__pycache__/
 *.py[cod]
 env/
+dist/
+build/
 .pytest_cache/
 .cache/
 .vscode/
