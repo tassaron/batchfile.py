@@ -4,12 +4,12 @@ from subprocess import call as system_call
 
 
 def make_debug_log():
-    if os.path.exists("debug.log"):
-        try:
+    try:
+        if os.path.exists("debug.log"):
             os.remove("debug.log")
-        except PermissionError:
-            pass
-    fh = logging.FileHandler("debug.log")
+        fh = logging.FileHandler("debug.log")
+    except PermissionError:
+        fh = logging.StreamHandler()
     fh.setFormatter(
         logging.Formatter("%(relativeCreated)6d %(threadName)s %(message)s")
     )
