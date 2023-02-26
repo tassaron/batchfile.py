@@ -21,6 +21,13 @@ class QuitProgram(Exception):
     ...
 
 
+class Callstack(list):
+    def pop_(self):
+        # pop() of standard list is read-only
+        # this makes pop overwritable if needed
+        return self.pop()
+
+
 class Batchfile:
     def __init__(self, stdin=None, stdout=None, redirection=None):
         """
@@ -61,7 +68,7 @@ class Batchfile:
             "type": self.echo_file,
         }
         self.VARIABLES = {}
-        self.current_bat = None
+        self.CALLSTACK = Callstack()
 
     @property
     def WAIT_FOR_STDIN(self):
@@ -255,14 +262,18 @@ class Batchfile:
         else:
             self.VARIABLES["argv"] = []
         filename = tokens[0]
+    
         LOG.debug(f"\n\n=======\n{filename}\n=======")
-        self.current_bat = filename
+        # append this batch file to the callstack, at line number 0
+        self.CALLSTACK.append([filename, 0])
+
+        # get batch file contents
         lines = get_textfile_lines(filename)
 
+        # find labels and register their line numbers
         labels = {}
         current_line = 0
         line = None
-        # register all the line numbers for the labels
         while True:
             try:
                 line = lines[current_line]
@@ -281,7 +292,10 @@ class Batchfile:
         Executes a list of lines by splitting each line on its first space character,
         finding the matching token_interpreter for the first word and passing the rest
         of the line to that interpreter method. If a GOTO is encountered, the label
-        should be a key in the labels dict which has the line-number as a value
+        should be a key in the labels dict which has the line-number as a value.
+
+        Updates the line number of the last item in self.CALLSTACK during execution
+        if `labels` is defined, which means a batch file is being executed
         """
         current_line = 0
         line = None
@@ -290,7 +304,16 @@ class Batchfile:
                 try:
                     line = lines[current_line]
                 except IndexError:
+                    # reached end of file
+                    # remove last entry from callstack, if executing a batch file
+                    if labels:
+                        self.CALLSTACK.pop_()
                     break
+
+            # update line number in callstack, if executing a batch file
+            if labels:
+                self.CALLSTACK[-1][1] = current_line
+
             if line.startswith(":"):
                 current_line += 1
                 line = None
@@ -304,6 +327,7 @@ class Batchfile:
                 line = None
                 continue
             else:
+                # execute current line
                 line = self.parse_line(line)
                 if line is not None:
                     # should be for line flow control
