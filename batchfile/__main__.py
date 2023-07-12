@@ -19,7 +19,7 @@ def main_loop(loops=-1, bat=None):
 
     print("\nBatchfile.py")
     print("Type EXIT to quit, or use Ctrl+C")
-    
+
     while loops != 0:
         try:
             ch = bat.line_input(f"{os.getcwd()}>")

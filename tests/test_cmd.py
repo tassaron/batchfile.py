@@ -40,5 +40,4 @@ if sys.platform == "win32":
             print("\nTEST FAILED")
 
 else:
-
     print("Skipping CMD.exe test due to not being on Windows")

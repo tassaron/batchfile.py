@@ -24,7 +24,6 @@ if os.name == "nt":
     def clear_console():
         system_call("cls", shell=True)
 
-
 else:
 
     def clear_console():

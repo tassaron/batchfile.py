@@ -262,7 +262,7 @@ class Batchfile:
         else:
             self.VARIABLES["argv"] = []
         filename = tokens[0]
-    
+
         LOG.debug(f"\n\n=======\n{filename}\n=======")
         # append this batch file to the callstack, at line number 0
         self.CALLSTACK.append([filename, 0])
