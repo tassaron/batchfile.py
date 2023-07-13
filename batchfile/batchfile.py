@@ -41,7 +41,9 @@ class Batchfile:
         self._WAIT_FOR_STDIN = False if stdin is None else True
         self.stdin = stdin
 
-        self.redirection_target = TextFileRedirect() if redirection is None else redirection
+        self.redirection_target = (
+            TextFileRedirect() if redirection is None else redirection
+        )
 
         nothing = lambda *_: None
         self.token_interpreters = {
