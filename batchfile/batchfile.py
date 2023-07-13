@@ -249,7 +249,18 @@ class Batchfile:
         else:
             self.line_input("Press ENTER to continue . . .")
 
-    def call_bat(self, line):
+    def resume(self, callstack: Callstack, variables: dict):
+        """
+        Defines variables then starts from the tail end of a callstack.
+        Used for resuming a dead session from another Batchfile object.
+        """
+        self.VARIABLES = variables
+        self.CALLSTACK = callstack
+        filename, lineno = callstack[-1]
+        LOG.debug("Resuming into file %s at line %s", filename, lineno)
+        self.call_bat(filename, lineno)
+
+    def call_bat(self, line, line_number=0):
         """
         Receives as input: a string with the filename of a batch file,
             optionally followed by its space-separated arguments (argv)
@@ -266,8 +277,9 @@ class Batchfile:
         filename = tokens[0]
 
         LOG.debug(f"\n\n=======\n{filename}\n=======")
-        # append this batch file to the callstack, at line number 0
-        self.CALLSTACK.append([filename, 0])
+        # append this batch file to the callstack if we're on line 0
+        if line_number == 0:
+            self.CALLSTACK.append([filename, line_number])
 
         # get batch file contents
         lines = get_textfile_lines(filename)
@@ -275,9 +287,10 @@ class Batchfile:
         # find labels and register their line numbers
         labels = find_labels(lines)
 
-        self.execute_lines(lines, labels)
+        self.execute_lines(lines, labels, line_number)
+        self.CALLSTACK.pop_()
 
-    def execute_lines(self, lines, labels=None):
+    def execute_lines(self, lines, labels=None, line_number=0):
         """
         Executes a list of lines by splitting each line on its first space character,
         finding the matching token_interpreter for the first word and passing the rest
@@ -287,33 +300,29 @@ class Batchfile:
         Updates the line number of the last item in self.CALLSTACK during execution
         if `labels` is defined, which means a batch file is being executed
         """
-        current_line = 0
         line = None
         while True:
             if line is None:
                 try:
-                    line = lines[current_line]
+                    line = lines[line_number]
                 except IndexError:
                     # reached end of file
-                    # remove last entry from callstack, if executing a batch file
-                    if labels:
-                        self.CALLSTACK.pop_()
                     break
 
             # update line number in callstack, if executing a batch file
             if labels:
-                self.CALLSTACK[-1][1] = current_line
+                self.CALLSTACK[-1][1] = line_number
 
             if line.startswith(":"):
-                current_line += 1
+                line_number += 1
                 line = None
                 continue
             elif line.startswith("goto"):
                 try:
-                    current_line = labels[self.expand_variables(line[5:]).lower()]
+                    line_number = labels[self.expand_variables(line[5:]).lower()]
                 except (KeyError, TypeError) as e:
                     LOG.warning(f"<Failed to goto nonexistent label {e}>")
-                    current_line += 1
+                    line_number += 1
                 line = None
                 continue
             else:
@@ -324,7 +333,7 @@ class Batchfile:
                     assert line.startswith("goto")
                     continue
                 else:
-                    current_line += 1
+                    line_number += 1
 
     def expand_variables(self, line):
         """
@@ -341,9 +350,11 @@ class Batchfile:
         elif "%" not in line[line.index("%") + 1 :]:
             # % appears without appearing a second time, which is how argv gets used
             arg_num = line[line.index("%") + 1]
-            line = line.replace(
-                f"%{arg_num}", str(self.VARIABLES["argv"][int(arg_num) - 1])
-            )
+            try:
+                replaced_text = str(self.VARIABLES["argv"][int(arg_num) - 1])
+            except IndexError:
+                replaced_text = ""
+            line = line.replace(f"%{arg_num}", replaced_text)
             return self.expand_variables(line)
 
         # if % appears twice then expand the variable between those symbols
@@ -432,7 +443,7 @@ class Batchfile:
             line = lines[0]
         tokens = line.split(" ", 1)
         if tokens[0] == "goto":
-            # return to the call_bat function to change current_line
+            # return to the call_bat function to change line_number
             return line
         try:
             func = self.token_interpreters[tokens[0]]
