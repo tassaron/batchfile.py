@@ -388,8 +388,10 @@ class Batchfile:
             variable = variable[3:]
             if variable.endswith("+"):
                 self.VARIABLES[variable[:-1]] += int(self.expand_variables(value))
+                return
             elif variable.endswith("-"):
                 self.VARIABLES[variable[:-1]] -= int(self.expand_variables(value))
+                return
             else:
                 value = self.set_variable_using_math(self.expand_variables(value))
             value = self.expand_variables(value)
