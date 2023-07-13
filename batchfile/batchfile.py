@@ -271,20 +271,8 @@ class Batchfile:
         lines = get_textfile_lines(filename)
 
         # find labels and register their line numbers
-        labels = {}
-        current_line = 0
-        line = None
-        while True:
-            try:
-                line = lines[current_line]
-            except IndexError:
-                break
-            if line.startswith(":"):
-                if line.startswith("::"):
-                    current_line += 1
-                    continue
-                labels[line[1:].lower()] = current_line
-            current_line += 1
+        labels = find_labels(lines)
+
         self.execute_lines(lines, labels)
 
     def execute_lines(self, lines, labels=None):

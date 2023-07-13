@@ -64,3 +64,21 @@ def strip_quotes(line):
 def get_textfile_lines(filename):
     with open(find_sensitive_path(filename), "r") as f:
         return [line.strip() for line in f]
+
+
+def find_labels(lines):
+    labels = {}
+    current_line = 0
+    line = None
+    while True:
+        try:
+            line = lines[current_line]
+        except IndexError:
+            break
+        if line.startswith(":"):
+            if line.startswith("::"):
+                current_line += 1
+                continue
+            labels[line[1:].lower()] = current_line
+        current_line += 1
+    return labels
