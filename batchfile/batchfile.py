@@ -93,6 +93,7 @@ class Batchfile:
         """
         Execute a batch file line or list of lines
         """
+        self.CALLSTACK.clear()
         if type(lines) is str:
             lines = [lines]
         try:
@@ -260,7 +261,7 @@ class Batchfile:
         LOG.debug("Resuming into file %s at line %s", filename, lineno)
         self.call_bat(filename, lineno)
 
-    def call_bat(self, line, line_number=0):
+    def call_bat(self, line, line_number=None):
         """
         Receives as input: a string with the filename of a batch file,
             optionally followed by its space-separated arguments (argv)
@@ -278,7 +279,8 @@ class Batchfile:
 
         LOG.debug(f"\n\n=======\n{filename}\n=======")
         # append this batch file to the callstack if we're on line 0
-        if line_number == 0:
+        if line_number is None:
+            line_number = 0
             self.CALLSTACK.append([filename, line_number])
 
         # get batch file contents
