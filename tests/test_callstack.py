@@ -28,7 +28,7 @@ def test_callstack_variable():
     # new_bat doesn't need stdin because %junk% variable is already set
     new_bat = batchfile.Batchfile(stdout=[])
     # resuming now does nothing as we are at the end of the file
-    new_bat.resume(bat.CALLSTACK, bat.VARIABLES)
+    new_bat.resume_from_serialized_state(bat.CALLSTACK, bat.VARIABLES)
     # set loop to 0 so we re-enter the loop at the bottom whilst preserving %junk%
     new_bat.run(["set loop=0", "call test_setp.bat"])
     assert len(new_bat.CALLSTACK) == 5
@@ -58,7 +58,7 @@ def test_popping():
     bat.VARIABLES["loop"] = 0
     bat.VARIABLES["poptest"] = "true"
     bat.CALLSTACK.append(["test_setp.bat", 0])
-    new_bat.resume(bat.CALLSTACK, bat.VARIABLES)
+    new_bat.resume_from_serialized_state(bat.CALLSTACK, bat.VARIABLES)
 
     # the original 5 from looping through without popping
     # plus 3 more from re-running while popping twice

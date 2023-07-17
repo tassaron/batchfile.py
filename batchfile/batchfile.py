@@ -21,6 +21,10 @@ class QuitProgram(Exception):
     ...
 
 
+class PauseProgram(Exception):
+    ...
+
+
 class Callstack(list):
     def pop_(self):
         # pop() of standard list is read-only
@@ -100,6 +104,10 @@ class Batchfile:
             self.execute_lines(lines)
         except QuitProgram:
             pass
+        except PauseProgram:
+            # dump state to be resumed later
+            self.serialize_state()
+            raise
 
     chdir = lambda self, dir: os.chdir(dir)
     echo_dir = lambda self: self.line_output(os.getcwd())
@@ -126,12 +134,11 @@ class Batchfile:
         line = line.replace("^", "")
         self.line_output(line, end=" ")
         try:
-            while self.WAIT_FOR_STDIN:
+            if self.WAIT_FOR_STDIN:
                 response = self.stdin()
-                if response == "":
-                    continue
-                return f"{response}\n".strip()
-            assert self.stdin is None
+                if response:
+                    return f"{response}\n".strip()
+                raise PauseProgram
             return input().strip()
         except (KeyboardInterrupt, EOFError):
             raise QuitProgram
@@ -249,17 +256,6 @@ class Batchfile:
             self.line_input()
         else:
             self.line_input("Press ENTER to continue . . .")
-
-    def resume(self, callstack: Callstack, variables: dict):
-        """
-        Defines variables then starts from the tail end of a callstack.
-        Used for resuming a dead session from another Batchfile object.
-        """
-        self.VARIABLES = variables
-        self.CALLSTACK = callstack
-        filename, lineno = callstack[-1]
-        LOG.debug("Resuming into file %s at line %s", filename, lineno)
-        self.call_bat(filename, lineno)
 
     def call_bat(self, line, line_number=None):
         """
@@ -462,3 +458,20 @@ class Batchfile:
                 return func()
         except KeyError:
             LOG.error(f'<Unrecognized line: "{tokens}">')
+
+    def serialize_state(self):
+        """
+        Dump state of VARIABLES and CALLSTACK when a PauseProgram exception occurs
+        """
+        # maybe not needed
+
+    def resume_from_serialized_state(self, callstack: Callstack, variables: dict):
+        """
+        Defines variables then starts from the tail end of a callstack.
+        Used for resuming a dead session from another Batchfile object.
+        """
+        self.VARIABLES = variables
+        self.CALLSTACK = Callstack(callstack)
+        filename, lineno = callstack[-1]
+        LOG.debug("Resuming into file %s at line %s", filename, lineno)
+        self.call_bat(filename, lineno)
