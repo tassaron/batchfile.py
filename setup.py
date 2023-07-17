@@ -13,7 +13,7 @@ setup(
     author="tassaron",
     name="batchfile.py",
     packages=find_packages(),
-    version=0.5,
+    version=0.6,
     url="https://github.com/tassaron2/batchfile.py",
     license="MIT",
     description="Run Windows batch files (.bat) using Python",
