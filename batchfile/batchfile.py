@@ -473,5 +473,5 @@ class Batchfile:
         self.VARIABLES = variables
         self.CALLSTACK = Callstack(callstack)
         filename, lineno = callstack[-1]
-        LOG.debug("Resuming into file %s at line %s", filename, lineno)
-        self.call_bat(filename, lineno)
+        LOG.debug("Resuming into file %s at line %s", filename, lineno - 1)
+        self.call_bat(filename, lineno - 1)
