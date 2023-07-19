@@ -286,7 +286,15 @@ class Batchfile:
         labels = find_labels(lines)
 
         self.execute_lines(lines, labels, line_number)
-        self.CALLSTACK.pop_()
+        if self.CALLSTACK:
+            self.CALLSTACK.pop_()
+
+        if self.CALLSTACK:
+            # call the file that should be above us in the callstack, but might not be
+            # also, tell it to proceed execution by 1 line so we don't loop
+            # this becomes 2 because resuming will subtract 1... blurgh
+            self.CALLSTACK[-1][1] += 2
+            self.resume_from_serialized_state(self.CALLSTACK, self.VARIABLES)
 
     def execute_lines(self, lines, labels=None, line_number=0):
         """
@@ -308,7 +316,8 @@ class Batchfile:
                     break
 
             # update line number in callstack, if executing a batch file
-            if labels:
+            if labels is not None:
+                # empty dict would be a batch file without labels
                 self.CALLSTACK[-1][1] = line_number
 
             if line.startswith(":"):
@@ -471,7 +480,10 @@ class Batchfile:
         Used for resuming a dead session from another Batchfile object.
         """
         self.VARIABLES = variables
-        self.CALLSTACK = Callstack(callstack)
+        self.CALLSTACK = (
+            callstack if isinstance(callstack, Callstack) else Callstack(callstack)
+        )
         filename, lineno = callstack[-1]
-        LOG.debug("Resuming into file %s at line %s", filename, lineno - 1)
-        self.call_bat(filename, lineno - 1)
+        lineno = max(lineno - 1, 0)
+        LOG.debug("Resuming into file %s at line %s", filename, lineno)
+        self.call_bat(filename, lineno)
