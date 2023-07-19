@@ -274,13 +274,13 @@ class Batchfile:
         filename = tokens[0]
 
         LOG.debug(f"\n\n=======\n{filename}\n=======")
+        # get batch file contents before screwing with callstack, just in case
+        lines = get_textfile_lines(filename)
+
         # append this batch file to the callstack if we're on line 0
         if line_number is None:
             line_number = 0
             self.CALLSTACK.append([filename, line_number])
-
-        # get batch file contents
-        lines = get_textfile_lines(filename)
 
         # find labels and register their line numbers
         labels = find_labels(lines)
@@ -479,11 +479,9 @@ class Batchfile:
         Defines variables then starts from the tail end of a callstack.
         Used for resuming a dead session from another Batchfile object.
         """
-        self.VARIABLES = variables
-        self.CALLSTACK = (
-            callstack if isinstance(callstack, Callstack) else Callstack(callstack)
-        )
-        filename, lineno = callstack[-1]
+        self.VARIABLES = dict(variables)
+        self.CALLSTACK = Callstack(callstack)
+        filename, lineno = self.CALLSTACK[-1]
         lineno = max(lineno - 1, 0)
         LOG.debug("Resuming into file %s at line %s", filename, lineno)
-        self.call_bat(filename, lineno)
+        self.call_bat(str(filename), lineno)
