@@ -10,13 +10,14 @@ def make_debug_log():
         fh = logging.FileHandler("debug.log")
     except PermissionError:
         fh = logging.StreamHandler()
-    fh.setFormatter(
-        logging.Formatter("%(relativeCreated)6d %(threadName)s %(message)s")
-    )
+    fh.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
     log = logging.getLogger(__package__)
     log.addHandler(fh)
     log.setLevel(logging.INFO)
     return log
+
+
+LOG = make_debug_log()
 
 
 if os.name == "nt":
@@ -49,6 +50,7 @@ def find_sensitive_path(insensitive_path, dir=None):
             else:
                 return find_sensitive_path(os.path.sep.join(parts[1:]), improved_path)
     # os.path.exists returns False when given an empty string, so...
+    LOG.warning("No case-insensitive path found for %s", insensitive_path)
     return ""
 
 
@@ -62,7 +64,10 @@ def strip_quotes(line):
 
 
 def get_textfile_lines(filename):
-    with open(find_sensitive_path(filename), "r") as f:
+    filename = find_sensitive_path(filename)
+    LOG.debug("Getting textfile at %s", filename)
+
+    with open(filename, "r") as f:
         return [line.strip() for line in f]
 
 
