@@ -480,7 +480,9 @@ class Batchfile:
         Used for resuming a dead session from another Batchfile object.
         """
         self.VARIABLES = dict(variables)
-        self.CALLSTACK = Callstack(callstack)
+        self.CALLSTACK = (
+            callstack if isinstance(callstack, Callstack) else Callstack(callstack)
+        )
         filename, lineno = self.CALLSTACK[-1]
         lineno = max(lineno - 1, 0)
         LOG.debug("Resuming into file %s at line %s", filename, lineno)
