@@ -353,14 +353,22 @@ class Batchfile:
         line = line.replace("%random%", str(random.randint(0, 32767)))
         line = line.replace("^", "")  # ^ is the escape char for batch files
         if "%" not in line:
+            # Replace HTML entity for % with actual %
+            line = line.replace("&#37;", "%")
             return line
         elif "%" not in line[line.index("%") + 1 :]:
             # % appears without appearing a second time, which is how argv gets used
             arg_num = line[line.index("%") + 1]
-            try:
-                replaced_text = str(self.VARIABLES["argv"][int(arg_num) - 1])
-            except IndexError:
-                replaced_text = ""
+
+            if arg_num.isdigit():
+                try:
+                    replaced_text = str(self.VARIABLES["argv"][int(arg_num) - 1])
+                except IndexError:
+                    replaced_text = ""
+            else:
+                # Replace stray % with HTML entity
+                replaced_text = "&#37; "
+
             line = line.replace(f"%{arg_num}", replaced_text)
             return self.expand_variables(line)
 
