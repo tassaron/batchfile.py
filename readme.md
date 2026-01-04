@@ -1,17 +1,27 @@
 # Batchfile.py
-A Python library to execute simple batch files (.bat) that would normally only work on Windows. It's on [PyPI](https://pypi.org/project/batchfile.py/) so you can install with `pip install batchfile.py`. After installing, get a REPL (live commandline) to test it out by running `python3 -m batchfile`
 
-See my [bat2web](https://github.com/tassaron2/bat2web) repo for an example of how you can use this library to turn a batch file into a website. Something you've always wanted to do, surely :)
+## [play my batch file game online](https://tassaron.com/game/funtimes)
 
-# How to play games
-* Install library (either from PyPI or by running `pip install .` in the same folder as the `setup.py` file.
-* Go in the `/games` directory for python scripts that will launch games.
-* So far the only supported game is one I wrote when I was 16, which you can play by running `funtimes.py` using Python 3.6+ on Linux, Windows, or MacOS.
-* On Windows you can also play the original game without Python using `FUNTIMES.bat` inside the funtimes directory
-* The original game actually works using `wineconsole` in Ubuntu as well, except for rare math problems
-* Funtimes can also be played [in a web browser](http://bat.tassaron.com)
+A Python library to execute simple batch files (.bat) that would normally only work on Windows. After installing, get a REPL (live commandline) to test it out by running `bat`, or check out the [/games](/games) folder and play `FUNTIMES.bat`
 
-# Running other batch files
+See my [bat2web](https://github.com/tassaron/bat2web) repo for an example of how you can use this library to turn a batch file into a website. Something you've always wanted to do, surely :)
+
+## Installation
+
+I recommend using the git version with `pip install git+https://github.com/tassaron/batchfile.py`
+
+There is an older version on PyPI, which is suitable enough for casual testing of the project if you prefer.
+
+## How to play games
+
+- Go in the `/games` directory for python scripts that will launch games.
+- So far the only supported game is one I wrote when I was 16, which you can play by running `funtimes.py` using Python 3.6+ on Linux, Windows, or MacOS.
+- On Windows you can also play the original game without Python using `FUNTIMES.bat` inside the funtimes directory
+- The original game actually works using `wineconsole` in Ubuntu as well, except for rare math problems
+- Funtimes can also be played [in a web browser](https://tassaron.com/game/funtimes)
+
+## Running other batch files
+
 I definitely don't intend to support every batch file, but it would be nice if similar batch-file-games worked without introducing too much complexity. Another game I wrote in 2010 called "Recruitment" is included as an example, but it doesn't yet work. Ultimately it would be really cool if this library supported [Time Streamer](https://everything2.com/title/Time+Streamer).
 
 The main obstacle to most games working is the lack of support for parentheses and quotation marks. Some hacky solutions are included to deal with the simple cases in Funtimes, but eventually I have to write a tokenizer/lexer to correctly deal with these complex structures. This should greatly increase compatibility once I do that!
